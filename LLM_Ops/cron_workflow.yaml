@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: mock-fine-tuning-tests-and-issue-handling
+spec:
+  schedule: "* * * * *"
+  timezone: "America/Los_Angeles"
+  startingDeadlineSeconds: 0
+  concurrencyPolicy: "Replace"
+  successfulJobsHistoryLimit: 4
+  failedJobsHistoryLimit: 4
+  suspend: false
+  workflowSpec:
+    entrypoint: run-mock-fine-tuning-tests-and-issue-handling
+    templates:
+      - name: run-mock-fine-tuning-tests-and-issue-handling
+        steps:
+          - - name: mock-github-issue
+              template: mock-github-issue
+          - - name: mock-fine-tuning
+              template: mock-fine-tuning
+          - - name: mock-tests
+              template: mock-tests
+              
+      - name: mock-github-issue
+        container:
+          image: docker/whalesay:latest
+          command: [cowsay]
+          args: ["🕓 mock GitHub issue handling. Started on: {{workflow.scheduledTime}}"]
+
+      - name: mock-fine-tuning
+        container:
+          image: docker/whalesay:latest
+          command: [cowsay]
+          args: ["🕓 mock fine-tuning. Started on: {{workflow.scheduledTime}}"]
+
+      - name: mock-tests
+        container:
+          image: docker/whalesay:latest
+          command: [cowsay]
+          args: ["🕓 mock tests. Started on: {{workflow.scheduledTime}}"]
